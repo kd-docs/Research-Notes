@@ -1,0 +1,168 @@
+\documentclass{report}
+
+\usepackage{sectsty}
+\usepackage{titlecaps}
+\chapterfont{\titlecap}
+\sectionfont{\titlecap}
+
+\usepackage[letterpaper]{geometry}
+\usepackage{xcolor, soul}
+\usepackage{graphicx}
+\usepackage[outputdir=build/]{minted}
+\usepackage{fontspec}
+\usepackage{hyperref}
+\usepackage{csquotes}
+\usepackage{indentfirst}
+\usepackage[
+  citestyle=alphabetic,
+  bibstyle=alphabetic,
+  sorting=ynt
+]{biblatex}
+
+\usepackage{fontspec}
+\usepackage{lipsum}
+
+\addbibresource{main.bib}
+
+\definecolor{bg}{HTML}{F7F3DD}
+\setminted{bgcolor=bg, autogobble}
+\setmonofont{JetBrainsMono}[
+  Path=./fonts/JetBrainsMono/,
+  Scale=MatchLowercase,
+  Extension = .ttf,
+  UprightFont=*-Regular,
+  BoldFont=*-Bold,
+  ItalicFont=*-Italic,
+  BoldItalicFont=*-BoldItalic
+]
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=cyan,
+  citecolor=blue,
+}
+
+
+\title{Thesis making up}
+\author{Kaidong Hu}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Thesis logics}
+\section{main}
+
+The first work tells a story of understand a complex indoor environment by 
+predicting different evacuate trajectory
+
+\noindent\rule{\linewidth}{1pt}
+
+\chapter{Extend trajectory learning work}
+
+\section{Run simplest steersim with AI}
+
+A clean steersuite build can be compiled inside the singularity container, 
+which requires the ubuntu version of 20.04.
+
+\begin{minted}{bash}
+  $ sifpath=`path/to/steersim.sif`
+  # run command with
+  $ singularity run $sifpath bash
+\end{minted}
+
+This starts ubuntu 20.04 environment, every command inside 20.04 container will 
+be started with \mintinline{bash}{>} instead.
+
+\begin{minted}{bash}
+  > cd build
+  > premake4 gmake
+  > cd gmake
+  > make -j`nproc` config=release64
+  # or stop at first error
+  > CFLAGS=-Wfatal-errors make config=release64
+\end{minted}
+
+Then steersuite can be run as
+\begin{minted}{bash}
+  > cd ../bin
+  > ./steersim -ai simpleAI
+\end{minted}
+
+\section{Unity's retail-ped reproduction}
+
+Download unity project from \href{ 
+https://github.com/hukaidong/RetailPeds/tree/a46f14017152f101e3e420522edc3b41b4406dbc 
+}{hukaidong/RetailPeds}. Open Project, and edit scene file stored in 
+'Assets/Scenes/Storer~Lab.unity'. In object \mintinline{csharp}{AgentManager} 
+change \mintinline{csharp}{Base Model Type} to value 
+\mintinline{csharp}{Moussaid}. Then hit play so you can get a replay of desired 
+steering algorithm \cite{moussaid2011how}
+
+\chapter{Additional experiment for AIxVR}
+
+\section{Recover parameters from trained keras model}
+A script will required a model configuration file and a model checkpoint. With 
+a latent file, it will predict parameter in an array on {seqname, 
+parameter}.\href{ 
+  https://github.com/hukaidong/pkl-keras-train/tree/f97d8b71bf7a55fad0450452a32b71ddcf606fe9
+}{hukaidong/pkl-keras-train}
+
+Notice that steersim requires a parameter defined in range [0, 1], but 
+AgentFormer scaled parameters into [-1, 1] in \href{ 
+https://github.com/hukaidong/MyAgentFormer/blob/e78cd3247d2a2691a5a8ca524b4c7b541fd2f55b/data/steersim.py#L154 
+}{\mintinline{bash}{data/steersim.py:154}}.  A backward transform is performed 
+at \mintinline{bash}{predict_scene.py:65}.
+
+\begin{minted}{bash}
+usage: predict_scene.py [-h] -i INPUT -C DIRERCTORY -o OUTPUT
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
+                        input json file
+  -C DIRERCTORY, --direrctory DIRERCTORY
+                        directory of the model
+  -o OUTPUT, --output OUTPUT
+                        output json file
+
+example: singularity run --nv sifs/keras.sif python3 predict_scene.py -i \
+            val.json -C "/dev/shm/activeloop-20230829-318223-agocho.snapshot/\
+            agentformer-result/agent_former/latents" -o result.json
+  
+\end{minted}
+
+\section{Simulate from predictions \& Comparing database}
+
+A new script was written in order to simulate all predicted trajectories and 
+holds their relation at the same time, run command in ActiveLoop project
+
+\begin{minted}{bash}
+
+rvm 3.0 do ruby ./bin/prediction_resimulate.rb
+
+\end{minted}
+
+\section{Get tradition trajectory measurement from config predictions}
+\begin{enumerate}
+  \item Step 1. Generate a new set of trajectory $T_0$, store their 
+    benchmarking data $B_0$.
+  \item Step 2. Get latent data from trajectory using trained AgentFormer
+  \item Step 3. Make prediction from latent data using trained CPN $P_1$ or 
+    Plain network $P_2$
+  \item Step 4. Simulate predictions, store simulated benchmarking data $B_{1, 
+    2}$. Each $B_0$ will have exact one matched $B_1$ or $B_2$
+  \item Step 5. For a specific metric $m$, compute MAE from $B_0, B_1$ pairs or 
+    $B_0, B_2$ pairs
+  \item Report result
+\end{enumerate}
+
+
+
+
+\printbibliography
+\end{document}
+
+% vim: set fo+=wat fo-=l spell:
+% vim: set fdm=marker fdl=1 fmr=<<<,>>>:
