@@ -1,0 +1,74 @@
+\chapter{LLM local hosting solutions research}
+\section{LLM RESTful precedure overview}
+\subsection{OpenAI compatible API}
+\label{sec:openai-v1-api}
+JSON format
+\begin{minted}{javascript}
+spec: 
+{
+  "model" : model-name,
+  "message" : [ messages-specs ],
+  "tools" : [ tools-specs ]
+}
+
+messages-specs: [ system-message, history-message, this-message ] 
+{
+  "content" : message-content,
+  "role" : any["system", "assistant", "user", "tool"],
+  "name[optional]" : name-of-role,
+  "tool_calls[optional]" : { tool_calls-spec if role-calls-tool},
+  "tool_call_id[optional]" : tool-call-backreferring-id
+}
+
+tools-specs:
+{
+  "function" : {
+    "description" : function-descriptions
+    "name" : function-name
+    "parameters" : { parameter-specs }
+  },
+  "type" : "function"
+}
+\end{minted}
+
+\subsection{Internal logic inside a chat/complete request}
+When a server received a request in json format metioned in \fref{sec:openai-v1-api}. It generates a string using 
+\mint{python}{tokenizer.apply_chat_template(request)}. The result is a series of token where mostly are words, with 
+several operative token indicates the boundary of each message and roles. For public `llama3` function-calling 
+fine-tuned model, functions are directly dumped as a human-readable string with no special token included.
+
+The generated content also includes a list of words and special token. For `llama-cpp-python` function-calling model, a 
+token "<|function-call>" is used to indicate the function boundaries. The token is translated to string showed above and 
+being parsed with server manually. For `llama3` function-calling fine-tuned model, replied message will be either a 
+parsible string or will have \\funcition header surrounded. Calling content are formatted in json format.
+
+
+\section{Test result on open source LLM servers}
+\subsection{Servers that does not support any function calling}
+Following servers will respond error message when passing a request with "tool" presented in spec:
+\begin{enumerate}
+  \item \href{https://github.com/kd-research/LLM-fc-servers-review/tree/ollama}{ollama exam}
+  \item \href{https://github.com/kd-research/LLM-fc-servers-review/tree/llamacpp}{llama-cpp exam}
+\end{enumerate}
+
+\subsection{Servers that has limited support on function calling}
+Following servers will respond to "tool" requests with constrains.
+\begin{enumerate}
+  \item \href{https://github.com/kd-research/LLM-fc-servers-review/tree/llamacpppython}{llama-cpp-python exam}
+  \item GROQ(remote)
+  \item OpenAI(remote)
+\end{enumerate}
+
+\mintinline{bash}{llama-cpp-python} could respond to any request with function calling for any LLM model. However, it 
+replys incorrect function calling specs with models not provided from itself. The reason of incorrect reply is it has a 
+strict function calling format. Any model who does not train with such format will suffer from incorrect result parsing.
+
+\section{GPT-4x and LLAMA-3 evaluation on function calling}
+\href{https://github.com/kd-research/LLM-fc-servers-review/blob/370d0e6414019c4c4bc7ed4764f1f295d4c3590b/compare-openai-groq-llama3-performance.ipynb}{Experiment 
+ipynb file}
+
+Result shows LLAMA-3 have observable lower problem solving ability compare than GPT-4x. Result showed above. To 
+replicate the experiment, clone repo and checkout to `api-pure` branch. Under root directory, copy ipynb file into 
+notebooks folder, then run \mintinline{bash}{docker compose up}. Use web browser open `localhost:8888` and rerun the 
+notebook.
+

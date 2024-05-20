@@ -1,6 +1,6 @@
 \chapter{Extend trajectory learning work}
 
-\section{Run simplest steersim with AI}
+\section{Run simplest steersim with AI} %\begin
 
 A clean steersuite build can be compiled inside the singularity container, 
 which requires the ubuntu version of 20.04.
@@ -29,7 +29,11 @@ Then steersuite can be run as
   > ./steersim -ai simpleAI
 \end{minted}
 
-\section{Unity's retail-ped reproduction}
+%\end
+\section{A minimal steersim config file for testing}
+\todo[inline]{Fill this later}
+
+\section{Unity's retail-ped reproduction} % \begin
 
 Download unity project from \href{ 
 https://github.com/hukaidong/RetailPeds/tree/a46f14017152f101e3e420522edc3b41b4406dbc 
@@ -40,14 +44,45 @@ change \mintinline{csharp}{Base Model Type} to value
 steering algorithm \cite{moussaid2011how}
 \printbibliography
 
+% \end
+\section{Egocentric Steering Algorithm as Steersuite Independent module} %\begin
+\todo[inline]{Fill this later}
+
+%end
 \chapter{Additional experiment for AIxVR}
 
-\section{Recover parameters from trained keras model}
+\section{Run full training and benchmarking process} % \begin
+
+\textbf{Requirement:}
+\begin{enumerate}
+  \item A steersuite configuration scenario
+  \item A dataset for such scenario with specific distribution
+    \begin{enumerate}
+      \item Dataset is located in scenario spec dataset location under directory "subdir"
+    \end{enumerate}
+\end{enumerate}
+
+The complete experiment will be executed (submitted by sbatch) with following command:
+\begin{minted}{bash}
+  ./bin/ruby_gpu_exec ./bin/af_evac_exec.rb logfile-name trial-name scene-name subdir
+#eg: ./bin/ruby_gpu_exec ./bin/af_evac_exec.rb localfiles/sfrnd1 trial0 sf_1 fullrandom
+\end{minted}
+
+Following command is used in submit the command, for recording:
+\begin{minted}[breaklines]{ruby}
+require 'rake'
+
+(0..9).to_a.product((2..14).to_a).each_with_index do |(t, s), i|
+  sh("./bin/ruby_gpu_exec ./bin/af_evac_exec.rb localfiles/bench-report3/sfrnd#{"%02d" % i} #{t} sf_#{s} fullrandom")
+end
+\end{minted}
+
+
+% \end
+\section{Recover parameters from trained keras model} %\begin
 A script will required a model configuration file and a model checkpoint. With 
 a latent file, it will predict parameter in an array on {seqname, 
-parameter}.\href{ 
-  https://github.com/hukaidong/pkl-keras-train/tree/f97d8b71bf7a55fad0450452a32b71ddcf606fe9
-}{hukaidong/pkl-keras-train}
+parameter}.\href{https://github.com/hukaidong/pkl-keras-train/tree/f97d8b71bf7a55fad0450452a32b71ddcf606fe9}{hukaidong/pkl-keras-train}
 
 Notice that steersim requires a parameter defined in range [0, 1], but 
 AgentFormer scaled parameters into [-1, 1] in \href{ 
@@ -73,18 +108,9 @@ example: singularity run --nv sifs/keras.sif python3 predict_scene.py -i \
   
 \end{minted}
 
-\section{Simulate from predictions \& Comparing database}
-
-A new script was written in order to simulate all predicted trajectories and 
-holds their relation at the same time, run command in ActiveLoop project
-
-\begin{minted}{bash}
-
-rvm 3.0 do ruby ./bin/prediction_resimulate.rb
-
-\end{minted}
-
-\section{Get tradition trajectory measurement from config predictions}
+% \end
+\section{Get tradition trajectory measurement from config predictions} % \begin
+\label{sec:resim-measure-precedure}
 \begin{enumerate}
   \item Step 1. Generate a new set of trajectory $T_0$, store their 
     benchmarking data $B_0$.
@@ -98,3 +124,27 @@ rvm 3.0 do ruby ./bin/prediction_resimulate.rb
   \item Report result
 \end{enumerate}
 
+% \end
+\section{Simulate from predictions \& Comparing database} % \begin 
+
+This is the executable script prepared for precedure described in \fref{sec:resim-measure-precedure}. A new script was 
+written in order to simulate all predicted trajectories and holds their relation at the same time, run command in 
+ActiveLoop project. In current commit \mintinline{bash}{`08f785a8fd`}, this should be automatically called at the end of 
+script \mintinline{bash}{./bin/af_evac_exec.rb}
+
+\begin{minted}{ruby}
+# [param]trail_name: string, usually a number indicates the repetation number of experiment
+# [param]scene_name: string, trail part of scene specification after "scene_evac_" (eg sf_1)
+# [param]subdir: dataset subdir used to seperate different pararmeter distributions in the
+#           same configuration space.  eg: (identity, fullrandom) depends on dataset setting
+# [param]snapshot_path: snapshot path for data in learning phase. used to recover model
+#           in inference phase
+def predict_and_benchmarks(trail_name, scene_name, subdir,
+                           snapshot_path=Snapshot::SNAPSHOT_PATH)
+  command = +"rvm 3.0 do ruby -Ilib ./bin/prediction_resimulate.rb "
+  command << "#{trial_name},#{scene_name},#{subdir},#{snapshot_path}"
+  sh(command)
+end
+\end{minted}
+
+% \end -section
