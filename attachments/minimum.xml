@@ -1,0 +1,43 @@
+<SteerSimOptions>
+  <engine>
+    <clockMode>fixed-real-time</clockMode>
+    <startupModules>
+      <module>scenario</module>
+    </startupModules>
+    <moduleSearchPath>../lib/;/home/kaidong/Projects/CLionProjects/kdai-module/develop/build/</moduleSearchPath>
+  </engine>
+  <engineDrivers>
+    <glfw>
+      <!--><startWithClockPaused>true</startWithClockPaused><-->
+    </glfw>
+  </engineDrivers>
+  <gui>
+    <cameraLookAt> <x>0</x> <y>0</y> <z>5</z> </cameraLookAt>
+    <cameraPosition> <x>0</x> <y>10</y> <z>14</z> </cameraPosition>
+    <cameraVerticalFieldOfView>45</cameraVerticalFieldOfView>
+  </gui>
+
+
+  <spatialDatabase>
+    <useDatabase>gridDatabase</useDatabase>
+    <gridDatabase>
+      <draw>false</draw>
+      <maxItemsPerGridCell>15</maxItemsPerGridCell>
+      <numCellsX>200</numCellsX> <numCellsZ>200</numCellsZ>
+      <sizeX>20</sizeX> <sizeZ>20</sizeZ>
+    </gridDatabase>
+  </spatialDatabase>
+
+  <modules>
+    <scenario>
+      <numScenarios>1</numScenarios>
+
+      <sceneEvacCOG id="scene-type"/>
+      <maxFrames>3000</maxFrames>
+
+      <useBenchmark/>
+      <benchmarkLog>/dev/fd/5</benchmarkLog>
+      <benchmarkTechnique>compositePLE</benchmarkTechnique>
+    </scenario>
+  </modules>
+</SteerSimOptions>

@@ -31,7 +31,57 @@ Then steersuite can be run as
 
 %\end
 \section{A minimal steersim config file for testing}
-\todo[inline]{Fill this later}
+Config file: \attachfile{attachments/minimum.xml} minimum.xml
+\begin{minted}[breaklines]{xml}
+<SteerSimOptions>
+  <engine>
+    <clockMode>fixed-real-time</clockMode>
+    <startupModules>
+      <module>scenario</module>
+    </startupModules>
+    <!--> Multiple load path should be separated with a comma <-->
+    <moduleSearchPath>../lib/;/path-to-CogAI/build/</moduleSearchPath>
+  </engine>
+  <!-->  # Delete this section if you need to manually start the simulation.
+  <engineDrivers>
+    <glfw>
+      <startWithClockPaused>true</startWithClockPaused>
+    </glfw>
+  </engineDrivers>
+  <-->
+
+  <gui>
+    <cameraLookAt> <x>0</x> <y>0</y> <z>5</z> </cameraLookAt>
+    <cameraPosition> <x>0</x> <y>10</y> <z>14</z> </cameraPosition>
+    <cameraVerticalFieldOfView>45</cameraVerticalFieldOfView>
+  </gui>
+
+
+  <spatialDatabase>
+    <useDatabase>gridDatabase</useDatabase>
+    <gridDatabase>
+      <draw>false</draw>
+      <maxItemsPerGridCell>15</maxItemsPerGridCell>
+      <numCellsX>200</numCellsX> <numCellsZ>200</numCellsZ>
+      <sizeX>20</sizeX> <sizeZ>20</sizeZ>
+    </gridDatabase>
+  </spatialDatabase>
+
+  <modules>
+    <scenario>
+      <numScenarios>1</numScenarios>
+
+      <sceneEvacCOG id="scene-type"/>
+      <maxFrames>3000</maxFrames>
+
+      <useBenchmark/>
+      <benchmarkLog>/dev/fd/5</benchmarkLog>
+      <benchmarkTechnique>compositePLE</benchmarkTechnique>
+    </scenario>
+  </modules>
+</SteerSimOptions>
+\end{minted}
+
 
 \section{Unity's retail-ped reproduction} % \begin
 
@@ -42,13 +92,15 @@ https://github.com/hukaidong/RetailPeds/tree/a46f14017152f101e3e420522edc3b41b44
 change \mintinline{csharp}{Base Model Type} to value 
 \mintinline{csharp}{Moussaid}. Then hit play so you can get a replay of desired 
 steering algorithm \cite{moussaid2011how}
-\printbibliography
 
 % \end
 \section{Egocentric Steering Algorithm as Steersuite Independent module} %\begin
 \todo[inline]{Fill this later}
 
 %end
+\printbibliography
+
+
 \chapter{Additional experiment for AIxVR}
 
 \section{Run full training and benchmarking process} % \begin
@@ -148,3 +200,5 @@ end
 \end{minted}
 
 % \end -section
+%
+\printbibliography

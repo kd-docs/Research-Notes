@@ -12,6 +12,7 @@
 \reversemarginpar
 \usepackage{todonotes}
 \usepackage{fancyref}
+\usepackage{attachfile2}
 
 \usepackage[outputdir=build/]{minted}
 \usepackage{fontspec}
@@ -19,9 +20,11 @@
 \usepackage{csquotes}
 \usepackage{indentfirst}
 \usepackage[
-  citestyle=alphabetic,
-  bibstyle=alphabetic,
-  sorting=ynt
+  refsection=chapter,
+  citestyle=numeric,
+  bibstyle=numeric,
+  backref=ture,
+  sorting=none
 ]{biblatex}
 
 \DeclarePrintbibliographyDefaults{
@@ -62,9 +65,12 @@
 \tableofcontents
 
 \part{Active Learning on Simulation Parameters}
+
 \include{pages/active-learning-on-parameters}
+\include{pages/steersuite-simulators}
+
 \part{LLM Automatic agent interactions}
-\include{pages/llm-rest-service-solutions.tex}
+\include{pages/llm-rest-service-solutions}
 
 
 
