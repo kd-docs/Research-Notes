@@ -38,11 +38,37 @@ a steersuite binary with CogAI enabled. CogAI should be installed to steersuite 
 ln -s "/path/to/CogAI/root" "/${STEERSUITE_ROOT}/build/cog-ai" 
 \end{minted}
 
-Then, follow the compilation instructions described in \ref{sec:steersuite-compile}.
+Then, follow the compilation instructions described in \fref{sec:steersuite-compile}.
+
+\section{Prepare to compile CogAI library}
+
+In order to install CogAI in your computer, you need to clone SteerSuite and CogAI repository to a local folder. Then 
+create a symbol link of SteerSuite repository to CogAI's external folder. Using command:
+\begin{minted}{bash}
+ln -s /path/to/steersuite/root external/steersuite
+\end{minted}
+
+Then compile in using makefile in the root directory. In case to compile it within an apptainer container, see 
+\fref{sec:cogai-apptainer}
+
+\section{Run a simulation with CogAI}
+
+To perform a simulation with CogAI, you should do one of the following installation steps:
+
+\begin{enumerate}
+  \item copy the compiled \mintinline{bash}{libcog-ai.so} into steersuite's library folder.
+  \item add the path name containing \mintinline{bash}{libcog-ai.so} into steersuite's configuration file.
+\end{enumerate}
+
+Then add \mintinline{bash}{-ai cog-ai} if using testcase player with steersuite, or load a preset scenario with cogai 
+integrated directory in scenarion model.
 
 \section{Run command using apptainer}
+\label{sec:cogai-apptainer}
+Following functions can be used to ease the apptainer development experience.
 
-Following command can be used to ease the apptainer development experience, You should 
+Definition file: \textattachfile{attachments/steersuite-container-functions.sh}{\textcolor{blue}{open}}
 
+\textit{note}: the config file used in this function is the same as defined in \fref{sec:steersim-config}.
 
 \printbibliography
