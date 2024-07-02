@@ -1,0 +1,29 @@
+\section{Compute bouncing factor from simulation result}
+
+Bouncing factor is computed with following algorithm. This algorithm captures extra bouncing length of an agent 
+trajectory scaled with reversed target distance. Bouncing is defined as any movement that is opposite to the agent 
+target vector. As shown in following formula:
+
+\begin{equation}
+   \frac{1}{\mathbf{s}_{T-1}-\mathbf{s}_0} \int \mathit{abs} \left( \nabla_t\mathbf{s} \cdot \mathit{norm}\left( 
+   {\mathbf{s}_{T-1}-\mathbf{s}_0} \right )\right )
+\end{equation}
+
+In above formula, \( \mathbf{s}_t \) indicates the agent position in time \( t \). \( \mathit{abs}(\cdot) \) is the 
+absolute value of a scalar, and \( \mathit{norm}(\cdot) \) returns a unit vector that indicates the direction of the 
+vector inside. \( \nabla_t\mathbf{s} \) is the gradient of vector \( \mathbf{s} \) over time \( t \), which is 
+implemented as \( \mathbf{s}_{t+dt} - \mathbf{s}_{t} \) where \( dt = 0.05s \) is a constant value during the 
+simulation.
+
+\section{Code to compute bouncing factor}
+
+Execution script is attached in \textattachfile{attachments/bouncing_factor.rb}{\textcolor{blue}{bouncing\_factor.rb}}
+In order to replicate result, run
+
+\begin{minted}{bash}
+  ./bouncing_factor.rb --title=[TITLE] file1 .. filen
+\end{minted}
+
+It will collect all agent trajectories from trajectory binary \mintinline{bash}{file1} to \mintinline{bash}{filen} and 
+show result in a histogram form.
+
